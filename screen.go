@@ -1,6 +1,6 @@
 package termloop
 
-import "github.com/nsf/termbox-go"
+import termbox "github.com/gdamore/tcell/termbox"
 
 // A Screen represents the current state of the display.
 // To draw on the screen, create Drawables and set their positions.

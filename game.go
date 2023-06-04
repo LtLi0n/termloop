@@ -2,8 +2,9 @@ package termloop
 
 import (
 	"fmt"
-	"github.com/nsf/termbox-go"
 	"time"
+
+	termbox "github.com/gdamore/tcell/termbox"
 )
 
 // Represents a top-level Termloop application.
