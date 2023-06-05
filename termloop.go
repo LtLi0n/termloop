@@ -3,20 +3,20 @@ package termloop
 import (
 	"strings"
 
-	termbox "github.com/gdamore/tcell/termbox"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 // A Canvas is a 2D array of Cells, used for drawing.
 // The structure of a Canvas is an array of columns.
 // This is so it can be addressed canvas[x][y].
-type Canvas [][]Cell
+type Canvas [][]tb.Cell
 
 // NewCanvas returns a new Canvas, with
 // width and height defined by arguments.
 func NewCanvas(width, height int) Canvas {
 	canvas := make(Canvas, width)
 	for i := range canvas {
-		canvas[i] = make([]Cell, height)
+		canvas[i] = make([]tb.Cell, height)
 	}
 	return canvas
 }
@@ -27,15 +27,21 @@ func (canvas *Canvas) equals(oldCanvas *Canvas) bool {
 	if c2 == nil {
 		return false
 	}
-	if len(c) != len(c2) {
+	sz_c := len(c)
+	sz_c2 := len(c2)
+	if sz_c != sz_c2 {
 		return false
+	}
+	// both arrays might be empty.
+	if sz_c == 0 {
+		return true
 	}
 	if len(c[0]) != len(c2[0]) {
 		return false
 	}
 	for i := range c {
 		for j := range c[i] {
-			equal := c[i][j].equals(&(c2[i][j]))
+			equal := CellsEqual(&c[i][j], &c2[i][j])
 			if !equal {
 				return false
 			}
@@ -58,10 +64,10 @@ func CanvasFromString(str string) Canvas {
 	height := len(runes)
 	canvas := make(Canvas, width)
 	for i := 0; i < width; i++ {
-		canvas[i] = make([]Cell, height)
+		canvas[i] = make([]tb.Cell, height)
 		for j := 0; j < height; j++ {
 			if i < len(runes[j]) {
-				canvas[i][j] = Cell{Ch: runes[j][i]}
+				canvas[i][j] = tb.Cell{Ch: runes[j][i]}
 			}
 		}
 	}
@@ -70,8 +76,8 @@ func CanvasFromString(str string) Canvas {
 
 // Drawable represents something that can be drawn, and placed in a Level.
 type Drawable interface {
-	Tick(Event)   // Method for processing events, e.g. input
-	Draw(*Screen) // Method for drawing to the screen
+	Tick(tb.Event) // Method for processing events, e.g. input
+	Draw(*Screen)  // Method for drawing to the screen
 }
 
 // Physical represents something that can collide with another
@@ -107,163 +113,8 @@ func max(a, b int) int {
 // Abstract Termbox stuff for convenience - users
 // should only need Termloop imported
 
-// Represents a character to be drawn on the screen.
-type Cell struct {
-	Fg Attr // Foreground colour
-	Bg Attr // Background color
-	Ch rune // The character to draw
+func CellsEqual(c1 *tb.Cell, c2 *tb.Cell) bool {
+	return c1.Fg == c2.Fg &&
+		c1.Bg == c2.Bg &&
+		c1.Ch == c2.Ch
 }
-
-func (c *Cell) equals(c2 *Cell) bool {
-	return c.Fg == c2.Fg &&
-		c.Bg == c2.Bg &&
-		c.Ch == c2.Ch
-}
-
-// Provides an event, for input, errors or resizing.
-// Resizing and errors are largely handled by Termloop itself
-// - this would largely be used for input.
-type Event struct {
-	Type   EventType // The type of event
-	Key    Key       // The key pressed, if any
-	Ch     rune      // The character of the key, if any
-	Mod    Modifier  // A keyboard modifier, if any
-	Err    error     // Error, if any
-	MouseX int       // Mouse X coordinate, if any
-	MouseY int       // Mouse Y coordinate, if any
-}
-
-func convertEvent(ev termbox.Event) Event {
-	return Event{
-		Type:   EventType(ev.Type),
-		Key:    Key(ev.Key),
-		Ch:     ev.Ch,
-		Mod:    Modifier(ev.Mod),
-		Err:    ev.Err,
-		MouseX: ev.MouseX,
-		MouseY: ev.MouseY,
-	}
-}
-
-type (
-	Attr      uint16
-	Key       uint16
-	Modifier  uint8
-	EventType uint8
-)
-
-// Types of event. For example, a keyboard press will be EventKey.
-const (
-	EventKey EventType = iota
-	EventResize
-	EventMouse
-	EventError
-	EventInterrupt
-	EventRaw
-	EventNone
-)
-
-// Cell colors. You can combine these with multiple attributes using
-// a bitwise OR ('|'). Colors can't combine with other colors.
-const (
-	ColorDefault Attr = iota
-	ColorBlack
-	ColorRed
-	ColorGreen
-	ColorYellow
-	ColorBlue
-	ColorMagenta
-	ColorCyan
-	ColorWhite
-)
-
-// Cell attributes. These can be combined with OR.
-const (
-	AttrBold Attr = 1 << (iota + 9)
-	AttrUnderline
-	AttrReverse
-)
-
-const ModAltModifier = 0x01
-
-// Key constants. See Event.Key.
-const (
-	KeyF1 Key = 0xFFFF - iota
-	KeyF2
-	KeyF3
-	KeyF4
-	KeyF5
-	KeyF6
-	KeyF7
-	KeyF8
-	KeyF9
-	KeyF10
-	KeyF11
-	KeyF12
-	KeyInsert
-	KeyDelete
-	KeyHome
-	KeyEnd
-	KeyPgup
-	KeyPgdn
-	KeyArrowUp
-	KeyArrowDown
-	KeyArrowLeft
-	KeyArrowRight
-	key_min
-	MouseLeft
-	MouseMiddle
-	MouseRight
-	MouseRelease
-	MouseWheelUp
-	MouseWheelDown
-)
-
-const (
-	KeyCtrlTilde      Key = 0x00
-	KeyCtrl2          Key = 0x00
-	KeyCtrlSpace      Key = 0x00
-	KeyCtrlA          Key = 0x01
-	KeyCtrlB          Key = 0x02
-	KeyCtrlC          Key = 0x03
-	KeyCtrlD          Key = 0x04
-	KeyCtrlE          Key = 0x05
-	KeyCtrlF          Key = 0x06
-	KeyCtrlG          Key = 0x07
-	KeyBackspace      Key = 0x08
-	KeyCtrlH          Key = 0x08
-	KeyTab            Key = 0x09
-	KeyCtrlI          Key = 0x09
-	KeyCtrlJ          Key = 0x0A
-	KeyCtrlK          Key = 0x0B
-	KeyCtrlL          Key = 0x0C
-	KeyEnter          Key = 0x0D
-	KeyCtrlM          Key = 0x0D
-	KeyCtrlN          Key = 0x0E
-	KeyCtrlO          Key = 0x0F
-	KeyCtrlP          Key = 0x10
-	KeyCtrlQ          Key = 0x11
-	KeyCtrlR          Key = 0x12
-	KeyCtrlS          Key = 0x13
-	KeyCtrlT          Key = 0x14
-	KeyCtrlU          Key = 0x15
-	KeyCtrlV          Key = 0x16
-	KeyCtrlW          Key = 0x17
-	KeyCtrlX          Key = 0x18
-	KeyCtrlY          Key = 0x19
-	KeyCtrlZ          Key = 0x1A
-	KeyEsc            Key = 0x1B // No longer supported
-	KeyCtrlLsqBracket Key = 0x1B
-	KeyCtrl3          Key = 0x1B
-	KeyCtrl4          Key = 0x1C
-	KeyCtrlBackslash  Key = 0x1C
-	KeyCtrl5          Key = 0x1D
-	KeyCtrlRsqBracket Key = 0x1D
-	KeyCtrl6          Key = 0x1E
-	KeyCtrl7          Key = 0x1F
-	KeyCtrlSlash      Key = 0x1F
-	KeyCtrlUnderscore Key = 0x1F
-	KeySpace          Key = 0x20
-	KeyBackspace2     Key = 0x7F
-	KeyCtrl8          Key = 0x7F
-)
