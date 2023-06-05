@@ -3,9 +3,10 @@ package main
 // A very simple music player. Takes an audio file as its argument.
 
 import (
-	tl "github.com/JoelOtter/termloop"
-	tlx "github.com/JoelOtter/termloop/extra"
 	"os"
+
+	tl "github.com/LtLi0n/termloop"
+	tlx "github.com/LtLi0n/termloop/extra"
 )
 
 func chk(err error) {
