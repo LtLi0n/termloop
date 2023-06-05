@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	tl "github.com/JoelOtter/termloop"
+
+	tl "github.com/LtLi0n/termloop"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 type EventInfo struct {
@@ -10,26 +12,26 @@ type EventInfo struct {
 }
 
 func NewEventInfo(x, y int) *EventInfo {
-	return &EventInfo{tl.NewText(x, y, "Click somewhere", tl.ColorWhite, tl.ColorBlack)}
+	return &EventInfo{tl.NewText(x, y, "Click somewhere", tb.ColorWhite, tb.ColorBlack)}
 }
 
-func (info *EventInfo) Tick(ev tl.Event) {
-	if ev.Type != tl.EventMouse {
+func (info *EventInfo) Tick(ev tb.Event) {
+	if ev.Type != tb.EventMouse {
 		return
 	}
 	var name string
 	switch ev.Key {
-	case tl.MouseLeft:
+	case tb.MouseLeft:
 		name = "Mouse Left"
-	case tl.MouseMiddle:
+	case tb.MouseMiddle:
 		name = "Mouse Middle"
-	case tl.MouseRight:
+	case tb.MouseRight:
 		name = "Mouse Right"
-	case tl.MouseWheelUp:
+	case tb.MouseWheelUp:
 		name = "Mouse Wheel Up"
-	case tl.MouseWheelDown:
+	case tb.MouseWheelDown:
 		name = "Mouse Wheel Down"
-	case tl.MouseRelease:
+	case tb.MouseRelease:
 		name = "Mouse Release"
 	default:
 		name = fmt.Sprintf("Unknown Key (%#x)", ev.Key)
@@ -41,17 +43,23 @@ type Clickable struct {
 	*tl.Rectangle
 }
 
-func NewClickable(x, y, w, h int, col tl.Attr) *Clickable {
+func NewClickable(x, y, w, h int, col tb.Attribute) *Clickable {
 	return &Clickable{tl.NewRectangle(x, y, w, h, col)}
 }
 
-func (c *Clickable) Tick(ev tl.Event) {
+func (c *Clickable) Tick(ev tb.Event) {
 	x, y := c.Position()
-	if ev.Type == tl.EventMouse && ev.MouseX == x && ev.MouseY == y {
-		if c.Color() == tl.ColorWhite {
-			c.SetColor(tl.ColorBlack)
+	if ev.Type == tb.EventNone || ev.Type == tb.EventResize {
+		return
+	}
+	if ev.Type != tb.EventMouse {
+		return
+	}
+	if ev.Type == tb.EventMouse && ev.MouseX == x && ev.MouseY == y {
+		if c.Color() == tb.ColorWhite {
+			c.SetColor(tb.ColorBlack)
 		} else {
-			c.SetColor(tl.ColorWhite)
+			c.SetColor(tb.ColorWhite)
 		}
 	}
 }
@@ -62,7 +70,7 @@ func main() {
 	g.Screen().AddEntity(NewEventInfo(0, 0))
 	for i := 0; i < 40; i++ {
 		for j := 1; j < 20; j++ {
-			g.Screen().AddEntity(NewClickable(i, j, 1, 1, tl.ColorWhite))
+			g.Screen().AddEntity(NewClickable(i, j, 1, 1, tb.ColorWhite))
 		}
 	}
 

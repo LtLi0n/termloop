@@ -2,26 +2,28 @@ package main
 
 import (
 	"fmt"
-	tl "github.com/JoelOtter/termloop"
 	"os"
+
+	tl "github.com/LtLi0n/termloop"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 type MovingText struct {
 	*tl.Text
 }
 
-func (m *MovingText) Tick(ev tl.Event) {
+func (m *MovingText) Tick(ev tb.Event) {
 	// Enable arrow key movement
-	if ev.Type == tl.EventKey {
+	if ev.Type == tb.EventKey {
 		x, y := m.Position()
 		switch ev.Key {
-		case tl.KeyArrowRight:
+		case tb.KeyArrowRight:
 			x += 1
-		case tl.KeyArrowLeft:
+		case tb.KeyArrowLeft:
 			x -= 1
-		case tl.KeyArrowUp:
+		case tb.KeyArrowUp:
 			y -= 1
-		case tl.KeyArrowDown:
+		case tb.KeyArrowDown:
 			y += 1
 		}
 		m.SetPosition(x, y)
@@ -35,6 +37,6 @@ func main() {
 	}
 	g := tl.NewGame()
 	g.Screen().SetFps(30)
-	g.Screen().AddEntity(&MovingText{tl.NewText(0, 0, os.Args[1], tl.ColorWhite, tl.ColorBlue)})
+	g.Screen().AddEntity(&MovingText{tl.NewText(0, 0, os.Args[1], tb.ColorWhite, tb.ColorBlue)})
 	g.Start()
 }

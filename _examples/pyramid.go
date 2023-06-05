@@ -1,10 +1,12 @@
 package main
 
 import (
-	tl "github.com/JoelOtter/termloop"
 	"math/rand"
 	"strconv"
 	"time"
+
+	tl "github.com/LtLi0n/termloop"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 ////////////////////////
@@ -113,7 +115,7 @@ type Block struct {
 	scoretext *tl.Text
 }
 
-func NewBlock(x, y int, color tl.Attr, g *tl.Game, w, h, score int, scoretext *tl.Text) *Block {
+func NewBlock(x, y int, color tb.Attribute, g *tl.Game, w, h, score int, scoretext *tl.Text) *Block {
 	b := &Block{
 		g:         g,
 		w:         w,
@@ -136,18 +138,18 @@ func (b *Block) Draw(s *tl.Screen) {
 	b.Rectangle.Draw(s)
 }
 
-func (b *Block) Tick(ev tl.Event) {
+func (b *Block) Tick(ev tb.Event) {
 	// Enable arrow key movement
-	if ev.Type == tl.EventKey {
+	if ev.Type == tb.EventKey {
 		b.px, b.py = b.Position()
 		switch ev.Key {
-		case tl.KeyArrowRight:
+		case tb.KeyArrowRight:
 			b.SetPosition(b.px+1, b.py)
-		case tl.KeyArrowLeft:
+		case tb.KeyArrowLeft:
 			b.SetPosition(b.px-1, b.py)
-		case tl.KeyArrowUp:
+		case tb.KeyArrowUp:
 			b.SetPosition(b.px, b.py-1)
-		case tl.KeyArrowDown:
+		case tb.KeyArrowDown:
 			b.SetPosition(b.px, b.py+1)
 		}
 	}
@@ -155,10 +157,10 @@ func (b *Block) Tick(ev tl.Event) {
 
 func (b *Block) Collide(c tl.Physical) {
 	if r, ok := c.(*tl.Rectangle); ok {
-		if r.Color() == tl.ColorWhite {
+		if r.Color() == tb.ColorWhite {
 			// Collision with walls
 			b.SetPosition(b.px, b.py)
-		} else if r.Color() == tl.ColorBlue {
+		} else if r.Color() == tb.ColorBlue {
 			// Collision with end - new level!
 			b.w += 1
 			b.h += 1
@@ -170,22 +172,22 @@ func (b *Block) Collide(c tl.Physical) {
 
 func buildLevel(g *tl.Game, w, h, score int) {
 	maze := generateMaze(w, h)
-	l := tl.NewBaseLevel(tl.Cell{})
+	l := tl.NewBaseLevel(tb.Cell{})
 	g.Screen().SetLevel(l)
 	g.Log("Building level with width %d and height %d", w, h)
 	scoretext := tl.NewText(0, 1, "Levels explored: "+strconv.Itoa(score),
-		tl.ColorBlue, tl.ColorBlack)
-	g.Screen().AddEntity(tl.NewText(0, 0, "Pyramid!", tl.ColorBlue, tl.ColorBlack))
+		tb.ColorBlue, tb.ColorBlack)
+	g.Screen().AddEntity(tl.NewText(0, 0, "Pyramid!", tb.ColorBlue, tb.ColorBlack))
 	g.Screen().AddEntity(scoretext)
 	for i, row := range maze {
 		for j, path := range row {
 			if path == '*' {
-				l.AddEntity(tl.NewRectangle(i, j, 1, 1, tl.ColorWhite))
+				l.AddEntity(tl.NewRectangle(i, j, 1, 1, tb.ColorWhite))
 			} else if path == 'S' {
 				col := tl.RgbTo256Color(0xff, 0, 0)
 				l.AddEntity(NewBlock(i, j, col, g, w, h, score, scoretext))
 			} else if path == 'L' {
-				l.AddEntity(tl.NewRectangle(i, j, 1, 1, tl.ColorBlue))
+				l.AddEntity(tl.NewRectangle(i, j, 1, 1, tb.ColorBlue))
 			}
 		}
 	}

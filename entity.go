@@ -1,5 +1,7 @@
 package termloop
 
+import tb "github.com/gdamore/tcell/v2/termbox"
+
 // Entity provides a general Drawable to be rendered.
 type Entity struct {
 	canvas Canvas
@@ -45,7 +47,7 @@ func (e *Entity) Draw(s *Screen) {
 
 // Tick needs to be implemented to satisfy the Drawable interface.
 // It updates the Entity based on the Screen's FPS
-func (e *Entity) Tick(ev Event) {}
+func (e *Entity) Tick(ev tb.Event) {}
 
 // Position returns the (x, y) coordinates of the Entity.
 func (e *Entity) Position() (int, int) {
@@ -65,13 +67,13 @@ func (e *Entity) SetPosition(x, y int) {
 
 // SetCell updates the attribute of the Cell at x, y to match those of c.
 // The coordinates are relative to the entity itself, not the Screen.
-func (e *Entity) SetCell(x, y int, c *Cell) {
+func (e *Entity) SetCell(x, y int, c *tb.Cell) {
 	renderCell(&e.canvas[x][y], c)
 }
 
 // Fill fills the canvas of the Entity with
 // a Cell c.
-func (e *Entity) Fill(c *Cell) {
+func (e *Entity) Fill(c *tb.Cell) {
 	for i := range e.canvas {
 		for j := range e.canvas[i] {
 			renderCell(&e.canvas[i][j], c)

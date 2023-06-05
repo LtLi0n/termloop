@@ -1,6 +1,6 @@
 package termloop
 
-import termbox "github.com/gdamore/tcell/termbox"
+import tb "github.com/gdamore/tcell/v2/termbox"
 
 // A Screen represents the current state of the display.
 // To draw on the screen, create Drawables and set their positions.
@@ -29,12 +29,12 @@ func NewScreen() *Screen {
 
 // Tick is used to process events such as input. It is called
 // on every frame by the Game.
-func (s *Screen) Tick(ev Event) {
+func (s *Screen) Tick(ev tb.Event) {
 	// TODO implement ticks using worker pools
 	if s.level != nil {
 		s.level.Tick(ev)
 	}
-	if ev.Type != EventNone {
+	if ev.Type != tb.EventNone {
 		for _, e := range s.Entities {
 			e.Tick(ev)
 		}
@@ -61,7 +61,7 @@ func (s *Screen) Draw() {
 		} else {
 			termboxNormal(&s.canvas)
 		}
-		termbox.Flush()
+		tb.Flush()
 	}
 	s.oldCanvas = s.canvas
 }
@@ -128,7 +128,7 @@ func (s *Screen) SetFps(f float64) {
 
 // RenderCell updates the Cell at a given position on the Screen
 // with the attributes in Cell c.
-func (s *Screen) RenderCell(x, y int, c *Cell) {
+func (s *Screen) RenderCell(x, y int, c *tb.Cell) {
 	newx := x + s.offsetx
 	newy := y + s.offsety
 	if newx >= 0 && newx < len(s.canvas) &&
@@ -151,7 +151,7 @@ func (s *Screen) setOffset(x, y int) {
 	s.offsetx, s.offsety = x, y
 }
 
-func renderCell(old, new_ *Cell) {
+func renderCell(old, new_ *tb.Cell) {
 	if new_.Ch != 0 {
 		old.Ch = new_.Ch
 	}
@@ -173,9 +173,9 @@ func termboxPixel(canvas *Canvas) {
 			if cellFront.Bg == 0 {
 				char = 0
 			}
-			termbox.SetCell(i, termj, char,
-				termbox.Attribute(cellFront.Bg),
-				termbox.Attribute(cellBack.Bg))
+			tb.SetCell(i, termj, char,
+				tb.Attribute(cellFront.Bg),
+				tb.Attribute(cellBack.Bg))
 		}
 	}
 }
@@ -183,9 +183,9 @@ func termboxPixel(canvas *Canvas) {
 func termboxNormal(canvas *Canvas) {
 	for i, col := range *canvas {
 		for j, cell := range col {
-			termbox.SetCell(i, j, cell.Ch,
-				termbox.Attribute(cell.Fg),
-				termbox.Attribute(cell.Bg))
+			tb.SetCell(i, j, cell.Ch,
+				tb.Attribute(cell.Fg),
+				tb.Attribute(cell.Bg))
 		}
 	}
 

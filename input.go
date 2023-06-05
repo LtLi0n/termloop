@@ -1,6 +1,6 @@
 package termloop
 
-import termbox "github.com/gdamore/tcell/termbox"
+import termbox "github.com/gdamore/tcell/v2/termbox"
 
 type input struct {
 	endKey termbox.Key

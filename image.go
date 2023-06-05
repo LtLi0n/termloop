@@ -7,11 +7,13 @@ import (
 	_ "image/png"
 	"log"
 	"os"
+
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 // Image processing
 
-func colorGridFromFile(filename string) *[][]Attr {
+func colorGridFromFile(filename string) *[][]tb.Attribute {
 	reader, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -26,9 +28,9 @@ func colorGridFromFile(filename string) *[][]Attr {
 	// Pull pixel colour data out of image
 	w := bounds.Max.X - bounds.Min.X
 	h := bounds.Max.Y - bounds.Min.Y
-	colors := make([][]Attr, w)
+	colors := make([][]tb.Attribute, w)
 	for i := range colors {
-		colors[i] = make([]Attr, h)
+		colors[i] = make([]tb.Attribute, h)
 	}
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
@@ -52,9 +54,9 @@ func BackgroundCanvasFromFile(filename string) *Canvas {
 	colors := colorGridFromFile(filename)
 	c := make(Canvas, len(*colors))
 	for i := range c {
-		c[i] = make([]Cell, len((*colors)[i]))
+		c[i] = make([]tb.Cell, len((*colors)[i]))
 		for j := range c[i] {
-			c[i][j] = Cell{Bg: (*colors)[i][j]}
+			c[i][j] = tb.Cell{Bg: (*colors)[i][j]}
 		}
 	}
 	return &c
@@ -67,9 +69,9 @@ func ForegroundCanvasFromFile(filename string) *Canvas {
 	colors := colorGridFromFile(filename)
 	c := make(Canvas, len(*colors))
 	for i := range c {
-		c[i] = make([]Cell, len((*colors)[i]))
+		c[i] = make([]tb.Cell, len((*colors)[i]))
 		for j := range c[i] {
-			c[i][j] = Cell{Fg: (*colors)[i][j]}
+			c[i][j] = tb.Cell{Fg: (*colors)[i][j]}
 		}
 	}
 	return &c

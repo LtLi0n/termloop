@@ -1,24 +1,26 @@
 package termloop
 
+import tb "github.com/gdamore/tcell/v2/termbox"
+
 // Text represents a string that can be drawn to the screen.
 type Text struct {
 	x      int
 	y      int
-	fg     Attr
-	bg     Attr
+	fg     tb.Attribute
+	bg     tb.Attribute
 	text   []rune
-	canvas []Cell
+	canvas []tb.Cell
 }
 
 // NewText creates a new Text, at position (x, y). It sets the Text's
 // background and foreground colors to fg and bg respectively, and sets the
 // Text's text to be text.
 // Returns a pointer to the new Text.
-func NewText(x, y int, text string, fg, bg Attr) *Text {
+func NewText(x, y int, text string, fg, bg tb.Attribute) *Text {
 	str := []rune(text)
-	c := make([]Cell, len(str))
+	c := make([]tb.Cell, len(str))
 	for i := range c {
-		c[i] = Cell{Ch: str[i], Fg: fg, Bg: bg}
+		c[i] = tb.Cell{Ch: str[i], Fg: fg, Bg: bg}
 	}
 	return &Text{
 		x:      x,
@@ -30,7 +32,7 @@ func NewText(x, y int, text string, fg, bg Attr) *Text {
 	}
 }
 
-func (t *Text) Tick(ev Event) {}
+func (t *Text) Tick(ev tb.Event) {}
 
 // Draw draws the Text to the Screen s.
 func (t *Text) Draw(s *Screen) {
@@ -64,21 +66,21 @@ func (t *Text) Text() string {
 // SetText sets the text of the Text to be text.
 func (t *Text) SetText(text string) {
 	t.text = []rune(text)
-	c := make([]Cell, len(t.text))
+	c := make([]tb.Cell, len(t.text))
 	for i := range c {
-		c[i] = Cell{Ch: t.text[i], Fg: t.fg, Bg: t.bg}
+		c[i] = tb.Cell{Ch: t.text[i], Fg: t.fg, Bg: t.bg}
 	}
 	t.canvas = c
 }
 
 // Color returns the (foreground, background) colors of the Text.
-func (t *Text) Color() (Attr, Attr) {
+func (t *Text) Color() (tb.Attribute, tb.Attribute) {
 	return t.fg, t.bg
 }
 
 // SetColor sets the (foreground, background) colors of the Text
 // to fg, bg respectively.
-func (t *Text) SetColor(fg, bg Attr) {
+func (t *Text) SetColor(fg, bg tb.Attribute) {
 	t.fg = fg
 	t.bg = bg
 	for i := range t.canvas {

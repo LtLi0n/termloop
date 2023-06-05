@@ -4,8 +4,10 @@ package main
 
 import (
 	"fmt"
-	tl "github.com/JoelOtter/termloop"
 	"os"
+
+	tl "github.com/LtLi0n/termloop"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 type Image struct {
@@ -20,18 +22,18 @@ func NewImage(c *tl.Canvas) *Image {
 
 func (i *Image) Draw(s *tl.Screen) { i.e.Draw(s) }
 
-func (i *Image) Tick(ev tl.Event) {
+func (i *Image) Tick(ev tb.Event) {
 	// Enable arrow key movement
-	if ev.Type == tl.EventKey {
+	if ev.Type == tb.EventKey {
 		x, y := i.e.Position()
 		switch ev.Key {
-		case tl.KeyArrowRight:
+		case tb.KeyArrowRight:
 			x -= 1
-		case tl.KeyArrowLeft:
+		case tb.KeyArrowLeft:
 			x += 1
-		case tl.KeyArrowUp:
+		case tb.KeyArrowUp:
 			y += 1
-		case tl.KeyArrowDown:
+		case tb.KeyArrowDown:
 			y -= 1
 		}
 		i.e.SetPosition(x, y)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	termbox "github.com/gdamore/tcell/termbox"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 // Represents a top-level Termloop application.
@@ -34,7 +34,7 @@ func (g *Game) Screen() *Screen {
 // SetScreen sets the current Screen of a Game.
 func (g *Game) SetScreen(s *Screen) {
 	g.screen = s
-	g.screen.resize(termbox.Size())
+	g.screen.resize(tb.Size())
 }
 
 // DebugOn returns a bool showing whether or not debug mode is on.
@@ -71,23 +71,23 @@ func (g *Game) dumpLogs() {
 // If you don't want an end key, set it to KeyEsc, as this key
 // isn't supported and will do nothing.
 // (We recommend always having an end key for development/testing.)
-func (g *Game) SetEndKey(key Key) {
-	g.input.endKey = termbox.Key(key)
+func (g *Game) SetEndKey(key tb.Key) {
+	g.input.endKey = tb.Key(key)
 }
 
 // Start starts a Game running. This should be the last thing called in your
 // main function. By default, the escape key exits.
 func (g *Game) Start() {
 	// Init Termbox
-	err := termbox.Init()
-	termbox.SetOutputMode(termbox.Output256)
-	termbox.SetInputMode(termbox.InputAlt | termbox.InputMouse)
+	err := tb.Init()
+	tb.SetOutputMode(tb.Output256)
+	tb.SetInputMode(tb.InputAlt | tb.InputMouse)
 	if err != nil {
 		panic(err)
 	}
 	defer g.dumpLogs()
-	defer termbox.Close()
-	g.screen.resize(termbox.Size())
+	defer tb.Close()
+	g.screen.resize(tb.Size())
 
 	// Init input
 	g.input.start()
@@ -104,14 +104,14 @@ mainloop:
 		case ev := <-g.input.eventQ:
 			if ev.Key == g.input.endKey {
 				break mainloop
-			} else if EventType(ev.Type) == EventResize {
+			} else if tb.EventType(ev.Type) == tb.EventResize {
 				g.screen.resize(ev.Width, ev.Height)
-			} else if EventType(ev.Type) == EventError {
+			} else if tb.EventType(ev.Type) == tb.EventError {
 				g.Log(ev.Err.Error())
 			}
-			g.screen.Tick(convertEvent(ev))
+			g.screen.Tick(ev)
 		default:
-			g.screen.Tick(Event{Type: EventNone})
+			g.screen.Tick(tb.Event{Type: tb.EventNone})
 		}
 
 		g.screen.Draw()

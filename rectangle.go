@@ -1,18 +1,20 @@
 package termloop
 
+import tb "github.com/gdamore/tcell/v2/termbox"
+
 // A type representing a 2D rectangle, with position, size and color.
 type Rectangle struct {
 	x      int
 	y      int
 	width  int
 	height int
-	color  Attr
+	color  tb.Attribute
 }
 
 // NewRectangle creates a new Rectangle at position (x, y), with size
 // (width, height) and color color.
 // Returns a pointer to the new Rectangle.
-func NewRectangle(x, y, w, h int, color Attr) *Rectangle {
+func NewRectangle(x, y, w, h int, color tb.Attribute) *Rectangle {
 	r := Rectangle{x: x, y: y, width: w, height: h, color: color}
 	return &r
 }
@@ -21,12 +23,12 @@ func NewRectangle(x, y, w, h int, color Attr) *Rectangle {
 func (r *Rectangle) Draw(s *Screen) {
 	for i := 0; i < r.width; i++ {
 		for j := 0; j < r.height; j++ {
-			s.RenderCell(r.x+i, r.y+j, &Cell{Bg: r.color, Ch: ' '})
+			s.RenderCell(r.x+i, r.y+j, &tb.Cell{Bg: r.color, Ch: ' '})
 		}
 	}
 }
 
-func (r *Rectangle) Tick(ev Event) {}
+func (r *Rectangle) Tick(ev tb.Event) {}
 
 // Size returns the width and height in characters of the Rectangle.
 func (r *Rectangle) Size() (int, int) {
@@ -51,11 +53,11 @@ func (r *Rectangle) SetSize(w, h int) {
 }
 
 // Color returns the color of the Rectangle.
-func (r *Rectangle) Color() Attr {
+func (r *Rectangle) Color() tb.Attribute {
 	return r.color
 }
 
 // SetColor sets the color of the Rectangle.
-func (r *Rectangle) SetColor(color Attr) {
+func (r *Rectangle) SetColor(color tb.Attribute) {
 	r.color = color
 }

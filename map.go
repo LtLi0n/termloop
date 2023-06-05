@@ -3,6 +3,8 @@ package termloop
 import (
 	"encoding/json"
 	"io/ioutil"
+
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 type levelMap struct {
@@ -21,7 +23,7 @@ func parseRectangle(data map[string]interface{}) *Rectangle {
 		int(data["y"].(float64)),
 		int(data["width"].(float64)),
 		int(data["height"].(float64)),
-		Attr(data["color"].(float64)),
+		tb.Attribute(data["color"].(float64)),
 	)
 }
 
@@ -30,8 +32,8 @@ func parseText(data map[string]interface{}) *Text {
 		int(data["x"].(float64)),
 		int(data["y"].(float64)),
 		data["text"].(string),
-		Attr(data["fg"].(float64)),
-		Attr(data["bg"].(float64)),
+		tb.Attribute(data["fg"].(float64)),
+		tb.Attribute(data["bg"].(float64)),
 	)
 }
 

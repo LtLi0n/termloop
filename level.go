@@ -1,5 +1,7 @@
 package termloop
 
+import tb "github.com/gdamore/tcell/v2/termbox"
+
 // Level interface represents a Drawable with a separate background
 // that is drawn first. It can also contain Drawables of its own.
 type Level interface {
@@ -7,28 +9,28 @@ type Level interface {
 	AddEntity(Drawable)
 	RemoveEntity(Drawable)
 	Draw(*Screen)
-	Tick(Event)
+	Tick(tb.Event)
 }
 
 // BaseLevel type represents a Level with a background defined as a Cell,
 // which is tiled. The background is drawn first, then all Entities.
 type BaseLevel struct {
 	Entities []Drawable
-	bg       Cell
+	bg       tb.Cell
 	offsetx  int
 	offsety  int
 }
 
 // NewBaseLevel creates a new BaseLevel with background bg.
 // Returns a pointer to the new BaseLevel.
-func NewBaseLevel(bg Cell) *BaseLevel {
+func NewBaseLevel(bg tb.Cell) *BaseLevel {
 	level := BaseLevel{Entities: make([]Drawable, 0), bg: bg}
 	return &level
 }
 
 // Tick handles any collisions between Physicals in the level's entities,
 // and processes any input.
-func (l *BaseLevel) Tick(ev Event) {
+func (l *BaseLevel) Tick(ev tb.Event) {
 	// Handle input
 	for _, e := range l.Entities {
 		e.Tick(ev)

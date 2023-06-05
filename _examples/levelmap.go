@@ -1,26 +1,28 @@
 package main
 
 import (
-	tl "github.com/JoelOtter/termloop"
 	"io/ioutil"
+
+	tl "github.com/LtLi0n/termloop"
+	tb "github.com/gdamore/tcell/v2/termbox"
 )
 
 type Player struct {
 	*tl.Entity
 }
 
-func (p *Player) Tick(ev tl.Event) {
+func (p *Player) Tick(ev tb.Event) {
 	// Enable arrow key movement
-	if ev.Type == tl.EventKey {
+	if ev.Type == tb.EventKey {
 		x, y := p.Position()
 		switch ev.Key {
-		case tl.KeyArrowRight:
+		case tb.KeyArrowRight:
 			x += 1
-		case tl.KeyArrowLeft:
+		case tb.KeyArrowLeft:
 			x -= 1
-		case tl.KeyArrowUp:
+		case tb.KeyArrowUp:
 			y -= 1
-		case tl.KeyArrowDown:
+		case tb.KeyArrowDown:
 			y += 1
 		}
 		p.SetPosition(x, y)
@@ -34,9 +36,9 @@ func parsePlayer(data map[string]interface{}) tl.Drawable {
 		int(data["y"].(float64)),
 		1, 1,
 	)
-	e.SetCell(0, 0, &tl.Cell{
+	e.SetCell(0, 0, &tb.Cell{
 		Ch: []rune(data["ch"].(string))[0],
-		Fg: tl.Attr(data["color"].(float64)),
+		Fg: tb.Attribute(data["color"].(float64)),
 	})
 	return &Player{e}
 }
@@ -50,7 +52,7 @@ func checkErr(err error) {
 func main() {
 	g := tl.NewGame()
 	g.Screen().SetFps(30)
-	l := tl.NewBaseLevel(tl.Cell{Bg: 76, Fg: 1})
+	l := tl.NewBaseLevel(tb.Cell{Bg: 76, Fg: 1})
 	lmap, err := ioutil.ReadFile("level.json")
 	checkErr(err)
 	parsers := make(map[string]tl.EntityParser)
